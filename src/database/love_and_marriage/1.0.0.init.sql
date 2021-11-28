@@ -640,7 +640,7 @@ CREATE TABLE cases
     id_cntry    SMALLINT NOT NULL,
     id_province INT,
     id_district INT,
-    cases       SMALLINT NOT NULL,
+    cases       SMALLINT,
     deaths      SMALLINT,
     recovered   SMALLINT,
     CONSTRAINT fk_cntry FOREIGN KEY (id_cntry) REFERENCES country (id_cntry),
