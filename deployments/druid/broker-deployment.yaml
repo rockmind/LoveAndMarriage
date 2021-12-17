@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: broker
+    spec:
+      containers:
+        - args:
+            - broker
+          envFrom:
+            - configMapRef:
+                name: druid-config
+          image: apache/druid:0.22.1
+          name: broker
+          ports:
+            - containerPort: 8082
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/druid/var
+              name: broker-var
+      restartPolicy: Always
+      volumes:
+        - name: broker-var
+          persistentVolumeClaim:
+            claimName: broker-var
+status: {}
