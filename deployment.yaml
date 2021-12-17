@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: love-and-marriage
-        image: love_and_marriage:0.0.1
-        imagePullPolicy: Never
+        image: love_and_marriag:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
