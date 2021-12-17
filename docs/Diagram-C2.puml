@@ -1,0 +1,30 @@
+@startuml LoveAndMarriage
+!include plugins/C4-PlantUML/C4_Component.puml
+
+title Level 2: Container architecture diagram
+
+LAYOUT_WITH_LEGEND()
+
+System_Ext(externalSite, "Website in which have data")
+
+Container(scrapper, "Scrapper", "Python application")
+Container(webInterface, "Web interface", "FastApi, Dash")
+Container(covid19DbApi, "Covid19DB-Api", "FastApi")
+Container(reportsApi, "Reports-Api", "FastApi")
+
+ContainerDb(covid19Db, Covid19DB, Postgres)
+ContainerDb(reportsDb, ReportsDB, Postgres)
+ContainerDb(fastDb, FastDB, Druid)
+
+
+Rel(externalSite, scrapper, "HTTP")
+Rel(scrapper, covid19DbApi, "JSON-RPC")
+Rel(scrapper, fastDb, "kafka")
+Rel(webInterface, covid19DbApi, "JSON-RPC")
+Rel(covid19DbApi, covid19Db, "psycopg2")
+Rel(reportsApi, reportsDb, "psycopg2")
+Rel(reportsApi, fastDb, "HTTP")
+Rel(covid19DbApi, fastDb, "HTTP")
+Rel(webInterface, reportsApi, "JSON-RPC")
+
+@enduml
