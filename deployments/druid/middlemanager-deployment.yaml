@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: middlemanager
+  name: middlemanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: middlemanager
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: middlemanager
+    spec:
+      containers:
+        - args:
+            - middleManager
+          envFrom:
+            - configMapRef:
+                name: druid-config
+          image: apache/druid:0.22.1
+          name: middlemanager
+          ports:
+            - containerPort: 8091
+            - containerPort: 8100
+            - containerPort: 8101
+            - containerPort: 8102
+            - containerPort: 8103
+            - containerPort: 8104
+            - containerPort: 8105
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/shared
+              name: druid-shared
+            - mountPath: /opt/druid/var
+              name: middle-var
+      restartPolicy: Always
+      volumes:
+        - name: druid-shared
+          persistentVolumeClaim:
+            claimName: druid-shared
+        - name: middle-var
+          persistentVolumeClaim:
+            claimName: middle-var
+status: {}

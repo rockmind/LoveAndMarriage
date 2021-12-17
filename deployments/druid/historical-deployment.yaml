@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: historical
+  name: historical
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: historical
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: historical
+    spec:
+      containers:
+        - args:
+            - historical
+          envFrom:
+            - configMapRef:
+                name: druid-config
+          image: apache/druid:0.22.1
+          name: historical
+          ports:
+            - containerPort: 8083
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/shared
+              name: druid-shared
+            - mountPath: /opt/druid/var
+              name: historical-var
+      restartPolicy: Always
+      volumes:
+        - name: druid-shared
+          persistentVolumeClaim:
+            claimName: druid-shared
+        - name: historical-var
+          persistentVolumeClaim:
+            claimName: historical-var
+status: {}

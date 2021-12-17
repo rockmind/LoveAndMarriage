@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: router
+  name: router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: router
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: router
+    spec:
+      containers:
+        - args:
+            - router
+          envFrom:
+            - configMapRef:
+                name: druid-config
+          image: apache/druid:0.22.1
+          name: router
+          ports:
+            - containerPort: 8888
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/druid/var
+              name: router-var
+      restartPolicy: Always
+      volumes:
+        - name: router-var
+          persistentVolumeClaim:
+            claimName: router-var
+status: {}

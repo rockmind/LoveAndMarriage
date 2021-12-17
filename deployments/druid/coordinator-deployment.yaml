@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: coordinator
+  name: coordinator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: coordinator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: coordinator
+    spec:
+      containers:
+        - args:
+            - coordinator
+          envFrom:
+            - configMapRef:
+                name: druid-config
+          image: apache/druid:0.22.1
+          name: coordinator
+          ports:
+            - containerPort: 8081
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/shared
+              name: druid-shared
+            - mountPath: /opt/druid/var
+              name: coordinator-var
+      restartPolicy: Always
+      volumes:
+        - name: druid-shared
+          persistentVolumeClaim:
+            claimName: druid-shared
+        - name: coordinator-var
+          persistentVolumeClaim:
+            claimName: coordinator-var
+status: {}

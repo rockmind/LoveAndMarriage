@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: druid-config
+data:
+  DRUID_XMS: "512m"
+  DRUID_XMX: "512m"
+  DRUID_MAXNEWSIZE: "32m"
+  DRUID_NEWSIZE: "32m"
+  DRUID_MAXDIRECTMEMORYSIZE: "2024m"
+  druid_zk_service_host: zookeeper.default.svc.cluster.local:2181
+  druid_emitter_logging_logLevel: "debug"
+  druid_extensions_loadList: '["druid-histogram", "druid-datasketches", "druid-lookups-cached-global", "postgresql-metadata-storage"]'
+  druid_metadata_storage_type: postgresql
+  druid_metadata_storage_connector_connectURI: jdbc:postgresql://postgres.default.svc.cluster.local:5432/druid
+  druid_metadata_storage_connector_user: druid
+  druid_metadata_storage_connector_password: FoolishPassword
+  druid_coordinator_balancer_strategy: cachingCost
+  druid_indexer_runner_javaOptsArray: '["-server", "-Xmx512m", "-Xms512m", "-XX:MaxDirectMemorySize=2024m", "-XX:+ExitOnOutOfMemoryError", "-XX:+UseG1GC, "-Duser.timezone=UTC", "-Dfile.encoding=UTF-8", "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager"]'
+  druid_indexer_fork_property_druid_processing_buffer_sizeBytes: 256MiB
+  druid_storage_type: local
+  druid_storage_storageDirectory: "/opt/shared/segments"
+  druid_indexer_runner_type: "httpRemote"
+  druid_indexer_logs_type: "file"
+  druid_indexer_logs_directory: "/opt/shared/indexing-logs"
+  druid_processing_numThreads: "1"
+  druid_processing_numMergeBuffers: "1"
+  DRUID_LOG4J: '<?xml version="1.0" encoding="UTF-8" ?><Configuration status="WARN"><Appenders><Console name="Console" target="SYSTEM_OUT"><PatternLayout pattern="%d{ISO8601} %p [%t] %c - %m%n"/></Console></Appenders><Loggers><Root level="info"><AppenderRef ref="Console"/></Root><Logger name="org.apache.druid.jetty.RequestLog" additivity="false" level="DEBUG"><AppenderRef ref="Console"/></Logger></Loggers></Configuration>'
