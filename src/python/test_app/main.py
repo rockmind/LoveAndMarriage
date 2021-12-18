@@ -63,4 +63,5 @@ def private(token=Depends(token_auth_scheme)):
 if __name__ == "__main__":
     # app.run_server(debug=True)
     server.mount("/dash", WSGIMiddleware(app.server))
-    uvicorn.run(server, host="0.0.0.0", port=8000)
+    # uvicorn.run(server, host="0.0.0.0", port=8000)
+    uvicorn.run(server, port=8888)
