@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    io.kompose.service: postgres
+  name: postgres
+spec:
+  serviceName: postgres
+  selector:
+    matchLabels:
+      io.kompose.service: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        io.kompose.service: postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_PASSWORD
+              value: testpassword
+            - name: PGDATA
+              value: /data/pgdata
+          image: postgres:14.1-alpine
+          imagePullPolicy: Never
+          name: postgres
+          resources: {}
+          volumeMounts:
+            - mountPath: /data
+              name: postgresql-db-disk
+            - name: init-db-script
+              mountPath: /docker-entrypoint-initdb.d
+      restartPolicy: Always
+      volumes:
+        - name: postgresql-db-disk
+          persistentVolumeClaim:
+            claimName: postgresql-db-disk
+        - name: init-db-script
+          configMap:
+            name: init-postgres-db-config
+status:
+  replicas: 1
