@@ -1,3 +1,12 @@
+apiVersion: v1
+data:
+  init-db.sql: CREATE USER druid WITH PASSWORD 'FoolishPassword'; CREATE DATABASE druid WITH OWNER = druid
+kind: ConfigMap
+metadata:
+  name: init-postgres-db-config
+
+---
+
 # PostgreSQL StatefulSet
 apiVersion: apps/v1
 kind: StatefulSet
@@ -8,7 +17,7 @@ spec:
   selector:
     matchLabels:
       app: postgresql-db
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -16,15 +25,26 @@ spec:
     spec:
       containers:
         - name: postgresql-db
-          image: postgres:10
+          image: postgres:14.1-alpine
+          imagePullPolicy: Never
           volumeMounts:
             - name: postgresql-db-disk
               mountPath: /data
+            - name: init-db-script
+              mountPath: /docker-entrypoint-initdb.d
+
+#          envFrom:
+#            - configMapRef:
+#                name: postgres-config
           env:
             - name: POSTGRES_PASSWORD
               value: testpassword
             - name: PGDATA
               value: /data/pgdata
+      volumes:
+        - name: init-db-script
+          configMap:
+            name: init-postgres-db-config
   # Volume Claim
   volumeClaimTemplates:
     - metadata:
