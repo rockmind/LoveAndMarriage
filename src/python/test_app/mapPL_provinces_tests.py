@@ -1,17 +1,23 @@
 from asyncio import run
 
 import dash
+import requests
 from dash import dcc
 from dash import html
 from urllib.request import urlopen
-from datetime import date
+from datetime import date, datetime
 import plotly.express as px
 import json
+import pandas as pd
 from dash.dependencies import Input, Output
+from oauthlib.oauth2 import LegacyApplicationClient
+from requests_oauthlib import OAuth2Session
 
 import src.config as config
 from python.services import LoveAndMarriageDB
+import os
 
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 CASES = 'cases'
 DEATHS = 'deaths'
@@ -30,7 +36,32 @@ colors = {
 }
 
 
-df_provinces = run(LoveAndMarriageDB.get_provinces())
+def get_token():
+    username = 'johndoe'
+    password = 'FoolishPassword'
+
+    oauth = OAuth2Session(client=LegacyApplicationClient(client_id=username))
+    token = oauth.fetch_token(token_url='http://127.0.0.1:8888/token/', username=username, password=password)
+    return token
+
+
+token = get_token()
+
+
+def get_provinces():
+    BASE_URL = 'http://127.0.0.1:8888/provinces/'
+    headers = {
+        'Authorization': f'{token["token_type"]} {token["access_token"]}',
+        'Content-Type': 'application/json'
+    }
+    auth_response = requests.get(BASE_URL, headers=headers)
+    df = pd.read_json(auth_response.json(), convert_dates=['day'])
+
+    return df
+
+
+df_provinces = get_provinces()
+
 
 with urlopen(config.PL_PROVINCES_DIVISION_GEOJSON) as response:
     geo_provinces = json.load(response)
@@ -57,7 +88,7 @@ covid_case_type = 'cases'
     Output("map-PL_provinces", "figure"),
     [Input("date-picker-single", "date")])
 def choose_day(date_value):
-    day = date.fromisoformat(date_value)
+    day = datetime.fromisoformat(date_value)
     fig_provinces = px.choropleth(df_provinces[df_provinces.day == day], geojson=geo_provinces,
                                   locations='id_province', color=covid_case_type,
                                   color_continuous_scale="Reds",

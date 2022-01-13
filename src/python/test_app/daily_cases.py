@@ -1,6 +1,6 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 import sqlalchemy
 import plotly.express as px
 import plotly.graph_objects as go
@@ -14,7 +14,7 @@ RECOVERED = config.RECOVERED
 CASES_PL = config.PL_CASES
 DEATHS_PL = config.PL_DEATHS
 RECOVERED_PL = config.PL_RECOVERED
-DATA_TYPE_COLORS = {CASES:"red", DEATHS:"black", RECOVERED:"green"}
+DATA_TYPE_COLORS = {CASES: "red", DEATHS: "black", RECOVERED: "green"}
 
 
 app = dash.Dash(__name__)
@@ -51,6 +51,7 @@ app.layout = html.Div([
     )
 ])
 
+
 @app.callback(
     Output("daily-cases", "figure"),
     [Input("dropdown", "value")])
@@ -58,6 +59,7 @@ def choose_data(data_type):
     fig = go.Figure(
         data=go.Bar(x=df.day, y=df[data_type], marker_color=DATA_TYPE_COLORS[data_type]))
     return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8888)

@@ -1,6 +1,6 @@
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 import sqlalchemy
 from urllib.request import urlopen
 from datetime import date
@@ -34,7 +34,10 @@ colors = {
 db = sqlalchemy.create_engine(
     config.DATABASE_ENGINE,
 )
-
+df_districts = pd.read_sql(
+    "SELECT * FROM cases",
+    db
+)
 with urlopen(config.PL_DISTRICTS_DIVISION_GEOJSON) as response:
     districts = json.load(response)
 
@@ -60,14 +63,11 @@ covid_case_type = 'cases'
     Output("map-PL_districts", "figure"),
     [Input("date-picker-single", "date")])
 def choose_day(date_value):
-    df_districts = pd.read_sql(
-        "SELECT * FROM cases WHERE day='{}'".format(date_value),
-        db
-    )
+    day = date.fromisoformat(date_value)
 
-    fig_districts = px.choropleth(df_districts, geojson=districts, locations='id_district', color=covid_case_type,
-                                  color_continuous_scale="PuRd",
-                                  range_color=(df_districts[covid_case_type].min(), df_districts[covid_case_type].max()),
+    fig_districts = px.choropleth(df_districts[df_districts.day == day], geojson=districts, locations='id_district',
+                                  color=covid_case_type, color_continuous_scale="Reds",
+                                  range_color=(0, 100),
                                   center={'lat': 52.54958385576375, 'lon': 19.68517500268937},
                                   labels=DTYPE_LABELS
                                   )
