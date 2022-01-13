@@ -9,6 +9,9 @@ data:
     CREATE USER love_and_marriage WITH PASSWORD 'FoolishPassword';
     GRANT ALL PRIVILEGES ON DATABASE love_and_marriage TO love_and_marriage;
 
+    CREATE DATABASE users;
+    GRANT ALL PRIVILEGES ON DATABASE users TO love_and_marriage;
+
 kind: ConfigMap
 metadata:
   name: init-postgres-db-config
