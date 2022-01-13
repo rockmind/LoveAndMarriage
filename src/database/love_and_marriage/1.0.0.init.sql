@@ -1,5 +1,3 @@
-create database love_and_marriage;
-
 CREATE TABLE country (
     id_cntry     SMALLSERIAL CONSTRAINT cntry_first_key PRIMARY KEY,
     cntry_name   varchar(40) NOT NULL
