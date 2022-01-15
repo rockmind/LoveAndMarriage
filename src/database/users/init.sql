@@ -16,7 +16,7 @@ ALTER TABLE users OWNER TO love_and_marriage;
 CREATE UNIQUE INDEX users_username_uindex
     ON users (user_name);
 
-INSERT INTO public.users (user_name, hashed_password, email, full_name, descriptions, active, apps, created_at,
+INSERT INTO users (user_name, hashed_password, email, full_name, descriptions, active, apps, created_at,
                           updated_at)
-VALUES ('johndoe'::varchar, '$2b$12$04..e6Se2hkiXWEQOOSJROyIbn5XU4Jw0inYbMBIA1KaWaEwzALLS'::text, 'fake@email'::varchar,
-        null::varchar, 'service user'::text, true::boolean, '{"data_transmitter"}', DEFAULT, DEFAULT);
+VALUES ('covid_db_api'::varchar, '$2b$12$04..e6Se2hkiXWEQOOSJROyIbn5XU4Jw0inYbMBIA1KaWaEwzALLS'::text, 'fake@email'::varchar,
+        null::varchar, 'service user'::text, true::boolean, '{"covid_db_api"}', DEFAULT, DEFAULT);

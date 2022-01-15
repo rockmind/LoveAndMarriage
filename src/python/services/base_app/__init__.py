@@ -1,5 +1,2 @@
-from .base_app import app
+from .base_app import get_base_app, get_base_rpc_app
 
-
-def get_base_app():
-    return app

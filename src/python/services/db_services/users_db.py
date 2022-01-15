@@ -1,13 +1,13 @@
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from python.services.models import User
-from python.services.models.user import UserDBModel
+from services.models import User
+from services.models.user import UserDBModel
 
 logger = logging.getLogger(__name__)
 
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://love_and_marriage:FoolishPassword@new-somehow:5432/users'
+SQLALCHEMY_DATABASE_URL = 'postgresql://love_and_marriage:FoolishPassword@postgres.default:5432/users'
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
@@ -25,3 +25,5 @@ def get_users(skip: int = 0, limit: int = 100):
 def get_user(user_name: str) -> User:
     return db.query(UserDBModel).filter(UserDBModel.user_name == user_name).first()
 
+
+get_users()

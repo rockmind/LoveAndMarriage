@@ -12,13 +12,13 @@ class DBServices:
         self.user = user
         self.password = password
 
-        self._db_engine = create_engine(
+        self.db_engine = create_engine(
             f'postgresql://{self.user}:{self.password}@{self.host}/{self.db_name}',
         )
 
     async def run_sql_query(self, query: str) -> DataFrame:
         with ThreadPoolExecutor() as pool:
-            result = await get_running_loop().run_in_executor(pool, lambda: read_sql(query, self._db_engine))
+            result = await get_running_loop().run_in_executor(pool, lambda: read_sql(query, self.db_engine))
 
         return result
 

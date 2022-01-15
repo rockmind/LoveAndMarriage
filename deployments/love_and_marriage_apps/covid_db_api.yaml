@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: covid-db-api
+spec:
+  selector:
+    app: covid-db-api
+  ports:
+  - protocol: "TCP"
+    port: 80
+    targetPort: 8000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: covid-db-api
+spec:
+  selector:
+    matchLabels:
+      app: covid-db-api
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: covid-db-api
+    spec:
+      containers:
+      - name: covid-db-api
+        image: covid-db-api:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: APP_PORT
+          value: "8000"
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: 8000
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        startupProbe:
+          httpGet:
+            path: /health_check
+            port: 8000
+          failureThreshold: 30
+          periodSeconds: 10

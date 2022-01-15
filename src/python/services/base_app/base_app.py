@@ -1,21 +1,18 @@
-import logging
-import os
-import uvicorn
-
+from base64 import b64encode
 from datetime import datetime, timedelta
-from typing import Optional
-
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import status, FastAPI, Depends, HTTPException, Request, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
+from jsonrpcserver import async_dispatch
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from typing import Optional
+from secrets import token_bytes
 
-from python.services.db_services.love_and_marriage_db import LoveAndMarriageDB
-from python.services.db_services.users_db import get_user as get_user_from_db
-from python.services.models import User
+from services.db_services.users_db import get_user as get_user_from_db
+from services.models import User
 
-SECRET_KEY = "ca827d15dabf71606f24a826523b932e832101da679db9cc7eec2b5c4e523e9d"
+SECRET_KEY = b64encode(token_bytes(32)).decode()
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -44,18 +41,18 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(username: str):
+def get_user(username: str) -> User:
     user = get_user_from_db(username)
     if user:
         return User.from_orm(user)
 
 
-def authenticate_user(username: str, password: str):
+def authenticate_user(username: str, password: str) -> Optional[User]:
     user = get_user(username)
     if not user:
-        return False
+        return
     if not verify_password(password, user.hashed_password):
-        return False
+        return
     return user
 
 
@@ -111,3 +108,33 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "Bearer"}
 
+
+@app.post("/health_check")
+async def health_check():
+    return b"ok"
+
+
+@app.get("/health_check")
+async def health_check():
+    return b"ok"
+
+
+@app.get("/authentication_check")
+async def authentication_check(current_user: User = Depends(get_current_active_user)):
+    return {'Status': 'OK'}
+
+
+def get_base_app() -> FastAPI:
+    return app
+
+
+def get_base_rpc_app() -> FastAPI:
+    rpc_app = get_base_app()
+
+    @rpc_app.post("/")
+    async def index(request: Request, current_user: User = Depends(get_current_active_user)):
+        response = Response(await async_dispatch(await request.body()))
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    return rpc_app

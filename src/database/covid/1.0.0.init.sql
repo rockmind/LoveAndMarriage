@@ -708,3 +708,11 @@ INSERT INTO events (day, event) VALUES
 --     CONSTRAINT fk_province FOREIGN KEY (id_province) REFERENCES province (id_province),
 --     CONSTRAINT fk_district FOREIGN KEY (id_district) REFERENCES district (id_district)
 -- )
+
+CREATE TABLE geojson
+(
+    id_cntry SMALLINT CONSTRAINT geojson_pk PRIMARY KEY,
+    provinces JSON,
+    districts JSON,
+    CONSTRAINT fk_cntry FOREIGN KEY (id_cntry) REFERENCES country (id_cntry)
+)

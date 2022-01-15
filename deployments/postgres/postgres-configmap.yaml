@@ -5,12 +5,12 @@ data:
     CREATE USER druid WITH PASSWORD 'FoolishPassword';
     GRANT ALL PRIVILEGES ON DATABASE druid TO druid;
 
-    CREATE DATABASE love_and_marriage;
     CREATE USER love_and_marriage WITH PASSWORD 'FoolishPassword';
-    GRANT ALL PRIVILEGES ON DATABASE love_and_marriage TO love_and_marriage;
 
+    CREATE DATABASE covid;
     CREATE DATABASE users;
     GRANT ALL PRIVILEGES ON DATABASE users TO love_and_marriage;
+    GRANT ALL PRIVILEGES ON DATABASE covid TO love_and_marriage;
 
 kind: ConfigMap
 metadata:

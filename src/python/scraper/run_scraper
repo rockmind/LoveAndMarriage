@@ -1,0 +1,18 @@
+#!/usr/local/bin/python
+
+from asyncio import run
+from logging import getLogger
+from scraper.scrapers import scrap_actual_data
+
+
+logger = getLogger(__name__)
+
+
+if __name__ == "__main__":
+    logger.info('Start scraping data')
+    try:
+        run(scrap_actual_data())
+    except Exception as err:
+        logger.error(f'Error during scrap data: {err}')
+    else:
+        logger.info('End scraping data')
