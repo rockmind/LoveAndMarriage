@@ -1,21 +1,13 @@
-FROM python:3.10.1-slim-bullseye
+FROM base-container:latest
 
-RUN apt-get update && apt-get install -y gcc
 RUN apt-get -y install cron
 
-RUN mkdir /app
-RUN mkdir /app/lib
-RUN mkdir /app/services
 RUN mkdir /app/scraper
 
 WORKDIR /app
 ADD src/python/scraper /app/scraper
 ADD src/python/services /app/services
 ADD src/python/config.py /app/
-ADD requirements.txt /app/
-
-RUN pip install -r requirements.txt -t /app/lib
-
 
 RUN touch /var/log/cron.log
 RUN chmod +x /app/scraper/run_scraper

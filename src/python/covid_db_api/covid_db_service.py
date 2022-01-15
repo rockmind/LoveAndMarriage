@@ -17,6 +17,10 @@ class CovidDbService:
         cases_df.to_sql('cases', cls._db.db_engine, if_exists='replace', index=False)
 
     @classmethod
+    async def set_geojson_data(cls, df: DataFrame):
+        df.to_sql('geojson', cls._db.db_engine, if_exists='replace', index=False)
+
+    @classmethod
     async def get_provinces_geojson(cls, country=None) -> Dict:
         query = f"""
             SELECT provinces
@@ -24,7 +28,7 @@ class CovidDbService:
             WHERE id_cntry=136
         """
         df = await cls._db.run_sql_query(query)
-        return df.provinces.values[0]
+        return dict() if df.empty else df.provinces[0]
 
     @classmethod
     async def get_district_geojson(cls, country=None) -> Dict:
@@ -35,7 +39,7 @@ class CovidDbService:
             """
         logger.info(query)
         df = await cls._db.run_sql_query(query)
-        return df.districts.values[0]
+        return dict() if df.empty else df.districts[0]
 
     @classmethod
     async def get_district_cases(cls, date_from=None, date_to=None, country='Polska') -> DataFrame:

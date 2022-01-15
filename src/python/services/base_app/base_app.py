@@ -1,14 +1,18 @@
 from base64 import b64encode
 from datetime import datetime, timedelta
+from time import time
+
 from fastapi import status, FastAPI, Depends, HTTPException, Request, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from jsonrpcserver import async_dispatch
 from passlib.context import CryptContext
+from prometheus_client import generate_latest
 from pydantic import BaseModel
 from typing import Optional
 from secrets import token_bytes
 
+from services.base_app.prometheus import REQUEST_COUNT, REQUEST_LATENCY
 from services.db_services.users_db import get_user as get_user_from_db
 from services.models import User
 
@@ -109,27 +113,44 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
+@app.get('/metrics')
+@app.post('/metrics')
+def metrics():
+    return Response(generate_latest(), media_type='text/plain')
+
+
+@app.get("/health_check")
 @app.post("/health_check")
 async def health_check():
     return b"ok"
 
 
-@app.get("/health_check")
-async def health_check():
-    return b"ok"
-
-
 @app.get("/authentication_check")
+@app.post("/authentication_check")
 async def authentication_check(current_user: User = Depends(get_current_active_user)):
     return {'Status': 'OK'}
 
 
-def get_base_app() -> FastAPI:
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time()
+
+    response = await call_next(request)
+
+    process_time = time() - start_time
+
+    REQUEST_LATENCY.labels(app.title, request.url.path).observe(process_time)
+    REQUEST_COUNT.labels(app.title, request.method, request.url.path, response.status_code).inc()
+    return response
+
+
+def get_base_app(title: str = None) -> FastAPI:
+    app.title = title or app.title
     return app
 
 
-def get_base_rpc_app() -> FastAPI:
-    rpc_app = get_base_app()
+def get_base_rpc_app(title: str = None) -> FastAPI:
+    rpc_app = get_base_app(title)
 
     @rpc_app.post("/")
     async def index(request: Request, current_user: User = Depends(get_current_active_user)):

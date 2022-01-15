@@ -47,3 +47,10 @@ spec:
             port: 8000
           failureThreshold: 30
           periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 1000Mi
+          requests:
+            cpu: 50m
+            memory: 100Mi

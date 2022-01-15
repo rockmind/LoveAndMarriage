@@ -1,17 +1,11 @@
-FROM python:3.10.1-slim-bullseye
+FROM base-container:latest
 
-RUN mkdir /app
-RUN mkdir /app/lib
-RUN mkdir /app/services
 RUN mkdir /app/covid_db_api
 
 WORKDIR /app
 ADD src/python/covid_db_api /app/covid_db_api
 ADD src/python/services /app/services
-ADD requirements.txt /app/
-RUN apt-get update && apt-get install -y gcc
-RUN pip install -r requirements.txt -t /app/lib
-
+ADD src/python/config.py /app/
 
 ENV APP_PORT=8000
 ENV PYTHONPATH="/app/lib:/app"

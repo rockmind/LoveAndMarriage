@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: covid-db-api
-  replicas: 4
+  replicas: 1
   template:
     metadata:
       labels:
@@ -47,3 +47,23 @@ spec:
             port: 8000
           failureThreshold: 30
           periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 500Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: covid-db-api-v1
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: covid-db-api
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 30

@@ -1,7 +1,10 @@
+from urllib.request import urlopen
+
 import requests
 
 from collections import OrderedDict
-from pandas import concat as pd_concat, read_json as pd_read_json, read_csv as pd_read_csv, merge as pd_merge, Timestamp
+from pandas import concat as pd_concat, read_json as pd_read_json, read_csv as pd_read_csv, merge as pd_merge
+from pandas import DataFrame, Timestamp
 from datetime import datetime
 
 from os import remove as os_remove
@@ -9,6 +12,29 @@ from zipfile import ZipFile
 
 import config as config
 from services.rpc_services import covid_db_api
+from services import json_dumps, json_load
+
+
+async def scrap_geojson():
+    print('staa')
+
+    with urlopen(config.PL_DISTRICTS_DIVISION_GEOJSON) as response:
+        pl_districts = json_load(response)
+
+    with urlopen(config.PL_PROVINCES_DIVISION_GEOJSON) as response:
+        pl_provinces = json_load(response)
+
+    df = DataFrame([
+        {
+            'id_cntry': 136,
+            'provinces': json_dumps(pl_provinces),
+            'districts': json_dumps(pl_districts)
+        }
+    ])
+
+    await covid_db_api.rpc_request(OrderedDict(
+        set_geojson={'geojson_df': df.to_json()}
+    ))
 
 
 async def scrap_actual_data():
