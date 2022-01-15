@@ -1,4 +1,4 @@
-1`import uvicorn
+import uvicorn
 import logging
 from os import getenv
 from jsonrpcserver import Result, Success, method, Error
