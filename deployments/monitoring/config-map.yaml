@@ -39,10 +39,6 @@ data:
           regex: 'node-exporter'
           action: keep
 
-      - job_name: 'covid-db-api-metrics'
-        static_configs:
-          - targets: ['covid-db-api.default']
-
       - job_name: 'kubernetes-apiservers'
 
         kubernetes_sd_configs:
