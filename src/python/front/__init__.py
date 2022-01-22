@@ -12,7 +12,7 @@ from services.base_app import get_base_rpc_app
 token_auth_scheme = HTTPBearer()
 
 
-server = get_base_rpc_app()
+server = get_base_rpc_app('FrontApp')
 
 
 @server.get("/")
