@@ -12,7 +12,7 @@ config_logging()
 logger = logging.getLogger('CovidDbApi')
 
 logger.info('Start app...')
-app = get_base_rpc_app()
+app = get_base_rpc_app('CovidDbApi')
 logger.info('App started!')
 
 logger.info('Initialize CovidDB connection...')

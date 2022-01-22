@@ -7,10 +7,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from jsonrpcserver import async_dispatch
 from passlib.context import CryptContext
-from prometheus_client import generate_latest
+from prometheus_client import make_wsgi_app
 from pydantic import BaseModel
 from typing import Optional
 from secrets import token_bytes
+
+from starlette.middleware.wsgi import WSGIMiddleware
 
 from services.base_app.prometheus import REQUEST_COUNT, REQUEST_LATENCY
 from services.db_services.users_db import get_user as get_user_from_db
@@ -113,12 +115,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "Bearer"}
 
 
-@app.get('/metrics')
-@app.post('/metrics')
-def metrics():
-    return Response(generate_latest(), media_type='text/plain')
-
-
 @app.get("/health_check")
 @app.post("/health_check")
 async def health_check():
@@ -146,6 +142,10 @@ async def add_process_time_header(request: Request, call_next):
 
 def get_base_app(title: str = None) -> FastAPI:
     app.title = title or app.title
+
+    prometheus_app = make_wsgi_app()
+    app.mount("/metrics", WSGIMiddleware(prometheus_app))
+
     return app
 
 

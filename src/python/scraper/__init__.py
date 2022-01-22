@@ -8,7 +8,7 @@ from scraper.scrapers import scrap_actual_data as actual_data_scrap
 from scraper.scrapers import scrap_geojson
 
 
-app = get_base_rpc_app()
+app = get_base_rpc_app('ScraperApp')
 
 
 @method
