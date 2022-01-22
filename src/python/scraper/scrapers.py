@@ -16,7 +16,6 @@ from services import json_dumps, json_load
 
 
 async def scrap_geojson():
-    print('staa')
 
     with urlopen(config.PL_DISTRICTS_DIVISION_GEOJSON) as response:
         pl_districts = json_load(response)

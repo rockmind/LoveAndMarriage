@@ -4,7 +4,6 @@ from os import getenv
 from jsonrpcserver import Result, Success, method, Error
 from pandas import read_json as pd_read_json
 from services.base_app import get_base_rpc_app
-from services import json_dumps
 from covid_db_service import CovidDbService
 
 from services.log_config import config_logging
@@ -46,17 +45,16 @@ async def get_district_geojson(country=None) -> Result:
         data = await CovidDbService.get_district_geojson(country)
     except Exception as err:
         return Error(code=503, message=f'Internal problem with services. Error details: {err}')
-    return Success(json_dumps(data))
+    return Success(data)
 
 
 @method
 async def get_provinces_geojson(country=None) -> Result:
-    logging.info('TEST')
     try:
         data = await CovidDbService.get_provinces_geojson(country)
     except Exception as err:
         return Error(code=503, message=f'Internal problem with services. Error details: {err}')
-    return Success(json_dumps(data))
+    return Success(data)
 
 
 @method
@@ -98,12 +96,6 @@ async def get_districts_ids() -> Result:
 if __name__ == "__main__":
     port = int(getenv('APP_PORT', 8000))
 
-    # logger.info('Start app1111')
-    # log_config = uvicorn.config.LOGGING_CONFIG
-    # log_config["formatters"]["access"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
-    # log_config["formatters"]["default"]["fmt"] = "%(asctime)s - %(levelname)s - %(message)s"
-    # del log_config["loggers"]
-    # uvicorn.run(app, host='0.0.0.0', port=port, log_config=log_config, access_log=False, use_colors=False)
     config = {}
 
     # this is default (site-packages\uvicorn\main.py)
@@ -121,10 +113,5 @@ if __name__ == "__main__":
                     'uvicorn.access': {'handlers': ['access'], 'level': 'INFO', 'propagate': False},
                     },
     }
-
-    # logging.getLogger('uvicorn.access').handlers.clear()
-    # logging.getLogger('uvicorn.error').handlers.clear()
-    # logging.getLogger('uvicorn.access').propagate = True
-    # logging.getLogger('uvicorn.error').propagate = True
 
     uvicorn.run(app, host='0.0.0.0', port=port, **config)

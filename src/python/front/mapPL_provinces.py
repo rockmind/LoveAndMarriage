@@ -1,27 +1,20 @@
-from asyncio import run
-from collections import OrderedDict
+from asyncio import get_event_loop
 
 import dash
 import plotly.express as px
 import pandas as pd
-import requests
 from dash import dcc
 from dash import html
 from datetime import date, datetime
 from dash.dependencies import Input, Output
+
+from front_config import DTYPE_LABELS
 from services import json_loads
 from services.rpc_services import covid_db_api
 
-CASES = 'cases'
-DEATHS = 'deaths'
-RECOVERED = 'recovered'
-CASES_PL = 'Liczba przypadków'
-DEATHS_PL = 'Liczba zgonów'
-RECOVERED_PL = 'Liczba_ozdrowieńców'
-DTYPE_LABELS = {CASES: CASES_PL, DEATHS: DEATHS_PL, RECOVERED: RECOVERED_PL}
-DATA_TYPE_COLORS = {CASES: "red", DEATHS: "black", RECOVERED: "green"}
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, requests_pathname_prefix='/provinces/')
+
 
 colors = {
     'background': '#111111',
@@ -31,9 +24,10 @@ colors = {
 
 def get_provinces():
 
-    results = run(covid_db_api.rpc_request(OrderedDict(
-        get_provinces_cases={}, get_provinces_geojson={}
-    )))
+    results = get_event_loop().run_until_complete(covid_db_api.rpc_request([
+        'get_provinces_cases',
+        'get_provinces_geojson'
+    ]))
 
     df = pd.read_json(results[0]['result'], convert_dates=['date'])
 
@@ -80,6 +74,3 @@ def choose_day(date_value):
         resolution=50, )
     return fig_provinces
 
-
-if __name__ == '__main__':
-    app.run_server(debug=True, port=9988)

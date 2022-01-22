@@ -47,10 +47,10 @@ class CovidDbService:
         conditions = await cls._get_conditions(date_from, date_to)
 
         query = f"""
-            SELECT date, sum(cases) as cases, sum(deaths) as deaths, sum(recovered) as recovered
+            SELECT date, id_district, sum(cases) as cases, sum(deaths) as deaths, sum(recovered) as recovered
             FROM cases
             {conditions}
-            GROUP BY date
+            GROUP BY date, id_district
             ORDER BY date DESC
         """
         logger.info(query)

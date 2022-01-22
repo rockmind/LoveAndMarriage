@@ -31,9 +31,10 @@ colors = {
 
 def get_provinces():
 
-    results = run(covid_db_api.rpc_request(OrderedDict(
-        get_provinces_cases={}, get_provinces_geojson={}
-    )))
+    results = run(covid_db_api.rpc_request([
+        'get_provinces_cases',
+        'get_provinces_geojson'
+    ]))
 
     df = pd.read_json(results[0]['result'], convert_dates=['date'])
 
