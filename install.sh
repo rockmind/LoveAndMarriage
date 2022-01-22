@@ -1,4 +1,7 @@
-minikube start --driver=hyperv
+#minikube config set cpus 4
+#minikube config set memory 4096
+#minikube config set driver hyperv
+minikube start --driver=hyperv --memory=8192 --cpus=2
 minikube -p minikube docker-env | Invoke-Expression
 minikube addons enable metrics-server
 
