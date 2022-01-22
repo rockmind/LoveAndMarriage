@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class CovidDbService:
-    _db: DBServices = DBServices(host='postgres.default:5432', db_name='covid',
+    _db: DBServices = DBServices(host='postgres.love-and-marriage:5432', db_name='covid',
                                  user='love_and_marriage', password='FoolishPassword')
 
     @classmethod
@@ -71,6 +71,23 @@ class CovidDbService:
             FROM cases
             {conditions}
             GROUP BY date, id_province
+        '''
+        df = await cls._db.run_sql_query(query)
+        return df
+
+    @classmethod
+    async def get_all_cases(cls, date_from=None, date_to=None, country='Polska') -> DataFrame:
+        conditions = await cls._get_conditions(date_from, date_to)
+
+        query = f'''
+            SELECT
+                date,
+                sum(cases) as cases,
+                sum(deaths) as deaths,
+                sum(recovered) as recovered
+            FROM cases
+            {conditions}
+            GROUP BY date
         '''
         df = await cls._db.run_sql_query(query)
         return df

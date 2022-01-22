@@ -1,17 +1,17 @@
 import dash
 from dash import dcc
 from dash import html
-import sqlalchemy
-from urllib.request import urlopen
-from datetime import date
+from datetime import date, datetime
 import plotly.express as px
-import json
-import numpy as np
-import plotly.graph_objects as go
+
 import pandas as pd
+from asyncio import run
+
 from dash.dependencies import Input, Output
 
-import src.config as config
+from services import json_loads
+from services.rpc_services import covid_db_api
+
 
 CASES = 'cases'
 DEATHS = 'deaths'
@@ -29,17 +29,19 @@ colors = {
     'text': '#7FDBFF'
 }
 
-# assume you have a "long-form" data frame
-# see https://plotly.com/python/px-arguments/ for more options
-db = sqlalchemy.create_engine(
-    config.DATABASE_ENGINE,
-)
-df_districts = pd.read_sql(
-    "SELECT * FROM cases",
-    db
-)
-with urlopen(config.PL_DISTRICTS_DIVISION_GEOJSON) as response:
-    districts = json.load(response)
+def get_districts():
+
+    results = run(covid_db_api.rpc_request([
+        'get_district_cases',
+        'get_district_geojson'
+    ]))
+
+    df = pd.read_json(results[0]['result'], convert_dates=['date'])
+
+    return df, json_loads(results[1]['result'])
+
+
+df_districts, districts = get_districts()
 
 app.layout = html.Div([
     html.H1(children='koronawirus w Polsce'),
@@ -63,9 +65,9 @@ covid_case_type = 'cases'
     Output("map-PL_districts", "figure"),
     [Input("date-picker-single", "date")])
 def choose_day(date_value):
-    day = date.fromisoformat(date_value)
+    day = datetime.fromisoformat(date_value)
 
-    fig_districts = px.choropleth(df_districts[df_districts.day == day], geojson=districts, locations='id_district',
+    fig_districts = px.choropleth(df_districts[df_districts.date == day], geojson=districts, locations='id_district',
                                   color=covid_case_type, color_continuous_scale="Reds",
                                   range_color=(0, 100),
                                   center={'lat': 52.54958385576375, 'lon': 19.68517500268937},

@@ -3,15 +3,13 @@ from asyncio import run
 import dash
 from dash import dcc
 from dash import html
-from urllib.request import urlopen
-from datetime import date
+from datetime import date, datetime
 import plotly.express as px
-import json
+import pandas as pd
+
+from services import json_loads
+from services.rpc_services import covid_db_api
 from dash.dependencies import Input, Output
-
-import src.config as config
-from python.services import LoveAndMarriageDB
-
 
 CASES = 'cases'
 DEATHS = 'deaths'
@@ -30,10 +28,19 @@ colors = {
 }
 
 
-df_provinces = run(LoveAndMarriageDB.get_provinces())
+def get_provinces():
 
-with urlopen(config.PL_PROVINCES_DIVISION_GEOJSON) as response:
-    geo_provinces = json.load(response)
+    results = run(covid_db_api.rpc_request([
+        'get_provinces_cases',
+        'get_provinces_geojson'
+    ]))
+
+    df = pd.read_json(results[0]['result'], convert_dates=['date'])
+
+    return df, json_loads(results[1]['result'])
+
+
+df_provinces, geo_provinces = get_provinces()
 
 app.layout = html.Div([
     html.H1(children='koronawirus w Polsce'),
@@ -57,8 +64,8 @@ covid_case_type = 'cases'
     Output("map-PL_provinces", "figure"),
     [Input("date-picker-single", "date")])
 def choose_day(date_value):
-    day = date.fromisoformat(date_value)
-    fig_provinces = px.choropleth(df_provinces[df_provinces.day == day], geojson=geo_provinces,
+    day = datetime.fromisoformat(date_value)
+    fig_provinces = px.choropleth(df_provinces[df_provinces.date == day], geojson=geo_provinces,
                                   locations='id_province', color=covid_case_type,
                                   color_continuous_scale="Reds",
                                   range_color=(0, 1000),
@@ -74,4 +81,4 @@ def choose_day(date_value):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=9988)
+    app.run_server(debug=True, port=9998)

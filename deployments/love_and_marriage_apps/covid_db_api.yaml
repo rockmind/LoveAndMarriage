@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: covid-db-api
-  namespace: default
+  namespace: love-and-marriage
   annotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port:   '80'
@@ -21,6 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: covid-db-api
+  namespace: love-and-marriage
   annotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port:   '8000'
@@ -70,6 +71,7 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: covid-db-api-v1
+  namespace: love-and-marriage
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -77,4 +79,4 @@ spec:
     name: covid-db-api
   minReplicas: 1
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 50
+  targetCPUUtilizationPercentage: 80

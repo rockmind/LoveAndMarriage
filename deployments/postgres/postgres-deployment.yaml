@@ -3,6 +3,7 @@ kind: StatefulSet
 metadata:
   labels:
     io.kompose.service: postgres
+  namespace: love-and-marriage
   name: postgres
 spec:
   serviceName: postgres

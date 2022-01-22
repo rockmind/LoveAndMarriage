@@ -7,7 +7,7 @@ from services.models.user import UserDBModel
 logger = logging.getLogger(__name__)
 
 
-SQLALCHEMY_DATABASE_URL = 'postgresql://love_and_marriage:FoolishPassword@postgres.default:5432/users'
+SQLALCHEMY_DATABASE_URL = 'postgresql://love_and_marriage:FoolishPassword@postgres.love-and-marriage:5432/users'
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL

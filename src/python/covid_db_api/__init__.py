@@ -93,6 +93,15 @@ async def get_districts_ids() -> Result:
     return Success(df.to_json())
 
 
+@method
+async def get_all_cases() -> Result:
+    try:
+        df = await CovidDbService.get_all_cases()
+    except Exception as err:
+        return Error(code=503, message=f'Internal problem with services. Error details: {err}')
+    return Success(df.to_json())
+
+
 if __name__ == "__main__":
     port = int(getenv('APP_PORT', 8000))
 
